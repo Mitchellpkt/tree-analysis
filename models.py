@@ -12,9 +12,6 @@ class Output(BaseModel):
     """ An output is referenced by its index """
     output_index: int  # In order of appearance on the blockchain
 
-    def __eq__(self, other):
-        return self.output_index == other.output_index
-
 
 class Ring(BaseModel):
     """ A ring consumes outputs and creates a key image """
