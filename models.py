@@ -30,7 +30,7 @@ class Ring(BaseModel):
     def check_ring_for_cached_output_use(self, cached_output_indices: List[int]) -> bool:
         """ True if N-1 of the inputs are from the list known to be used in cache-defective transactions """
         matches: List[int] = [i for i in self.output_indices() if i in cached_output_indices]
-        return matches == self.ring_size() - 1
+        return len(matches) == self.ring_size() - 1
 
     # Analysis helper: [ONLY for rings with cached ring anomaly] return output index NOT on list of such outputs
     def real_spend(self, cached_output_indices: List[int]) -> int:
