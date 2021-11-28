@@ -12,6 +12,9 @@ class Output(BaseModel):
     """ An output is referenced by its index """
     output_index: int  # In order of appearance on the blockchain
 
+    def __eq__(self, other):
+        return self.output_index == other.output_index
+
 
 class Ring(BaseModel):
     """ A ring consumes outputs and creates a key image """
@@ -119,11 +122,11 @@ class TransactionTreeAnalysis(BaseModel):
                 label_vector.append(ConfusionMatrixLabel.UNKNOWN_LABEL)
 
             else:
-                # Is this the ring where whe output was really spent?
+                # Is this the ring where the output was really spent?
                 is_this_real_spend_truth: bool = ring.key_image == self.labels.known_spends[ring_member.output_index]
 
                 # Did the model think this is the ring where the output was really spent?
-                is_this_real_spend_model: bool = ring.key_image == model_prediction
+                is_this_real_spend_model: bool = ring == model_prediction
 
                 # Compare model to ground truth
                 if is_this_real_spend_model and is_this_real_spend_truth:
