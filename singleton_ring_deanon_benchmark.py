@@ -1,12 +1,13 @@
-# This a very rough estimate, probably good within an order or two of magnitude?
+# Don't take this file too seriously, it's a very rough approximation with sloppy assumptions
+# Stripped down for compatibility with python 3.11
 # Expect extra overhead for a full implementation and intra-transaction rings
 
 from load_transactions import get_processed_transaction
-from typing import Dict, List
-from isthmuslib import process_queue, Tuple
+from typing import Dict, List, Tuple
+from multiprocessing import Pool
 from time import perf_counter
 
-n_samples: int = 10_000
+n_samples: int = 5573404
 n_workers: int = 64
 
 # Pick two transactions
@@ -16,18 +17,16 @@ tx_rings_left: Dict[str, List[str]] = get_processed_transaction(tx_hash_left)
 tx_rings_right: Dict[str, List[str]] = get_processed_transaction(tx_hash_right)
 
 
-def wrapper(
-    rings_left: Dict[str, List[str]], rings_right: Dict[str, List[str]]
-) -> List[Tuple[str, str, str]]:
-    results: List[Tuple[str, str, str]] = []
+def wrapper(rings_left, rings_right):
+    results = []
     for key_image_left, ring_left in rings_left.items():
         for key_image_right, ring_right in rings_right.items():
             # Do we have a singleton?
             if len(set(ring_left) & set(ring_right)) == len(ring_left) - 1:
-                left_singleton: str = list(set(ring_left) - set(ring_right))[0]
-                right_singleton: str = list(set(ring_right) - set(ring_left))[0]
-                results.append((tx_hash_left, key_image_left, left_singleton))
-                results.append((tx_hash_right, key_image_right, right_singleton))
+                left_singleton: str = (set(ring_left) - set(ring_right)).pop()
+                right_singleton: str = (set(ring_right) - set(ring_left)).pop()
+                results.append((key_image_left, left_singleton))
+                results.append((key_image_right, right_singleton))
     return results
 
 
@@ -36,9 +35,12 @@ all_rings_right: List[Dict[str, List[str]]] = [tx_rings_right] * n_samples
 iterator: List[Tuple[Dict[str, List[str]], Dict[str, List[str]]]] = list(zip(all_rings_left, all_rings_right))
 
 tic: float = perf_counter()
-process_queue(wrapper, iterator, num_workers=n_workers)
+with Pool(n_workers) as p:
+    results = p.starmap(wrapper, iterator)
 toc: float = perf_counter()
 time_sec: float = toc - tic
+
+print(f"Example results:\n{[subitem for item in results for subitem in item][:5]}")
 
 num_rings: int = (len(tx_rings_left) * len(tx_rings_right)) * n_samples
 print(f"Processed {num_rings} ring pairs in {time_sec:.2f} seconds on {n_workers} cores")
