@@ -13,8 +13,8 @@ n_workers: int = 64
 # Pick two transactions
 tx_hash_left: str = "48ab24a942778d0c7d79d8bbc7076329ae45b9b7c8cc7c15d105e135b4746587"
 tx_hash_right: str = "71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c0cc8cb"
-tx_rings_left: Dict[str, Set[str]] = {k: set(v) for k, v in get_processed_transaction(tx_hash_left).items()}
-tx_rings_right: Dict[str, Set[str]] = {k: set(v) for k, v in get_processed_transaction(tx_hash_right).items()}
+tx_rings_left: Dict[str, Set[str]] = get_processed_transaction(tx_hash_left)
+tx_rings_right: Dict[str, Set[str]] = get_processed_transaction(tx_hash_right)
 
 
 def wrapper(rings_left, rings_right):
