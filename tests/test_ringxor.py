@@ -1,10 +1,11 @@
 import json
-import os
 from multiprocessing import cpu_count
 from ringxor import ringxor
+import pathlib
 
 # Load the test data
-with open("demo_rings.json", "r") as f:
+data_path: pathlib.Path = pathlib.Path.cwd() / ".." / "data" / "demo_rings.json"
+with open(data_path, "r") as f:
     all_rings_raw = json.load(f)
 
 # The code uses sets, but they can't be serialized to json, so we convert back here from temporary list representation
