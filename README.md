@@ -63,7 +63,7 @@ Also, because sets with different sizes cannot produce a DBO ring pair, we can r
 
 This process is "embarrassingly parallel", and this library implements CPU multithreading. 
 
-Benchmarks (parallelized on a research workstation) clocked in around 85 million ring pair comparisons per second. These were very rough estimates on the old research prototype; new benchmarks are under development.
+Benchmarks for new unoptimized python code: about 850,000 ring pair checks per second. Previous prototype code clocked in an order of magnitude faster, but I think the new numbers are more practical when actually juggling a large number of rings.
 
 ## Acknowledgements
 
