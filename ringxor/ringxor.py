@@ -10,7 +10,7 @@ edge: Type = Tuple[key_image_pointer, output_pointer]
 
 def process_bucket_single_thread(
     rings: ring_bucket, index_pairs: Collection[Tuple[int, int]] = None,
-) -> Collection[Tuple[key_image_pointer, output_pointer]]:
+) -> List[Tuple[key_image_pointer, output_pointer]]:
 
     # If no index pairs are provided, use all possible combinations
     if index_pairs is None:
