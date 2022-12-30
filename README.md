@@ -21,12 +21,36 @@ _(as an aside, there are many oddities in the above pair, such as the incorrect 
 We also find many examples of DBO ring pairs within the same transaction, for example:
 + Mitchell put a link here! 
 
-
 ## DBO ring analysis
 
-### TL;DR
-By removing transaction labels we can automatically detect intertransaction and intratransaction DBO relationships in a single pass. Any time two rings differ by only one element, we record the edge (`key image <--> output` pair) of the transaction tree corresponding to each singleton. 
+### Method summary
+Any time two rings differ by only one element, we record the edge (`key image <--> output` pair) of the transaction tree corresponding to each singleton. 
 
+### Example output:
+```
+...
+
+Txn: 48ab24a942778d0c7d79d8bbc7076329ae45b9b7c8cc7c15d105e135b4746587
+Key Image: f7c4e158caaa3d8b15bbf878ed15392d99debf1eaf78a421637fd13e51dce229
+Spends output: 9641bf77a6f7031b1f077c183e590b3e0c6cf9acd951aa9436d4b670958aff53
+
+Txn: 71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c0cc8cb
+Key Image: 8b4afa486c7a8d40c569a172a5ea2200e36c921ee543c2a6c7e43452c3efc9bd
+Spends output: c75a7b36d2311ce6b41ad062133a0a4b1f16c21d3251c10719158330d4799f7a
+
+Txn: 48ab24a942778d0c7d79d8bbc7076329ae45b9b7c8cc7c15d105e135b4746587
+Key Image: f37df1f2d6e28ef4fd2a22fa4172aa5453e5dad54e44503e130ce18ef4a28df9
+Spends output: c419117a83906e84c76de0604b85c00888097c1993b05784f3efdd84633e6d77
+
+Txn: 71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c0cc8cb
+Key Image: 71f9ad1b7735bad5d0f26eb9ea23545af1a39517e0e184c7c74d4ee9203156c1
+Spends output: 736eb676e8dcf030ab4116afe4c8c14e37adff19de70fd25e092a5da20dac778
+
+...
+```
+
+### Scope
+By removing transaction labels we can automatically detect intertransaction and intratransaction DBO relationships in a single pass. 
 ### Scalability
 
 If R is the number of rings on the blockchain, to make each pairwise comparison we would naively expect to do R^2 checks
@@ -40,28 +64,6 @@ Also, because sets with different sizes cannot produce a DBO ring pair, we can r
 This process is "embarrassingly parallel", and this library implements CPU multithreading. 
 
 Benchmarks (parallelized on a research workstation) clocked in around 85 million ring pair comparisons per second. These were very rough estimates on the old research prototype; new benchmarks are under development.
-
-### Example output:
-```
-Txn: 48ab24a942778d0c7d79d8bbc7076329ae45b9b7c8cc7c15d105e135b4746587
-Key Image: f7c4e158caaa3d8b15bbf878ed15392d99debf1eaf78a421637fd13e51dce229
-Spends output: 9641bf77a6f7031b1f077c183e590b3e0c6cf9acd951aa9436d4b670958aff53
-
-----
-Txn: 71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c0cc8cb
-Key Image: 8b4afa486c7a8d40c569a172a5ea2200e36c921ee543c2a6c7e43452c3efc9bd
-Spends output: c75a7b36d2311ce6b41ad062133a0a4b1f16c21d3251c10719158330d4799f7a
-
-----
-Txn: 48ab24a942778d0c7d79d8bbc7076329ae45b9b7c8cc7c15d105e135b4746587
-Key Image: f37df1f2d6e28ef4fd2a22fa4172aa5453e5dad54e44503e130ce18ef4a28df9
-Spends output: c419117a83906e84c76de0604b85c00888097c1993b05784f3efdd84633e6d77
-
-----
-Txn: 71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c0cc8cb
-Key Image: 71f9ad1b7735bad5d0f26eb9ea23545af1a39517e0e184c7c74d4ee9203156c1
-Spends output: 736eb676e8dcf030ab4116afe4c8c14e37adff19de70fd25e092a5da20dac778
-```
 
 ## Acknowledgements
 
