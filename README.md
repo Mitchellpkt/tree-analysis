@@ -53,13 +53,13 @@ Spends output: 736eb676e8dcf030ab4116afe4c8c14e37adff19de70fd25e092a5da20dac778
 By removing transaction labels we can automatically detect intertransaction and intratransaction DBO relationships in a single pass. 
 ### Scalability
 
-If R is the number of rings on the blockchain, to make each pairwise comparison we would naively expect to do R^2 checks
+If `R` is the number of rings on the blockchain, to make each pairwise comparison we would naively expect to do `R^2` checks
 
-However, we do not need to check along the diagonal of the matrix, because a ring cannot be a DBO ring pair with itself. So we can reduce the number of checks to R^2 - R
+However, we do not need to check along the diagonal of the matrix, because a ring cannot be a DBO ring pair with itself. So we can reduce the number of checks to `R^2 - R`
 
-Furthermore, because ring xor is symmetric, we only need to look at the upper triangle of the matrix! This brings us down to (R^2-R)/2 checks.
+Furthermore, because ring xor is symmetric, we only need to look at the upper triangle of the matrix! This brings us down to `(R^2 - R) / 2` checks.
 
-Also, because sets with different sizes cannot produce a DBO ring pair, we can reduce the number of checks by only comparing rings of the same size. So consider the set of rings sized 11 (R11) and the set of ring sized 16 (R16). We only need to check `1/2(R11^2 - R11 + R16^2 - R16)` which is much less than `1/2(R^2 - R)`
+Also, because sets with different sizes cannot produce a DBO ring pair, we can reduce the number of checks by only comparing rings of the same size. So consider the set of rings sized 11 (`R11`) and the set of ring sized 16 (`R16`). We only need to check `(R11^2 - R11 + R16^2 - R16) / 2` which is much less than `(R^2 - R) / 2`
 
 This process is "embarrassingly parallel", and this library implements CPU multithreading. 
 
