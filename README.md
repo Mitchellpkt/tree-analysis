@@ -1,32 +1,23 @@
 # Transaction tree analysis
 
-The main part of this repository under active development is the `ringxor` library, for recording edges of the transaction tree revealed by differ-by-one ring pairs.
+Mitchell P. Krawiec-Thayer (`@isthmus`)
+
+This repository houses a few tools for analyzing transaction trees, some geared towards readability and some geared towards performance.
+
+**The main part of this repository under active development is the `ringxor` library**, for identifying edges of the transaction tree revealed by differ-by-one ring pairs.
+
+## Introduction to differ-by-one (DBO) analysis
 
 Suppose we have the sets {2, 4, 8} and {2, 4, 10}. We'll say that this pair has a "differ by one" (DBO) relationship, because singleton 8 sticks out on the left, and the singleton 10 sticks out on the right. 
 
 Any pair of rings whose members differ by only one element will be called a "DBO ring pair". We'll refer to any ring that belongs to any DBO pair as a "DBO ring". (Note that one DBO ring can be in many DBO pairs, and this is disturbingly common on the Monero blockchain)
 
-## intERtransaction DBO pairs
-We can have DBO ring pairs across different transactions, for example:
-+ [https://xmrchain.net/tx/6fb06bcd042e5f705a458a37cc3aaf6a1ad7a35657cf03f74e3aea383a47fb7e](https://xmrchain.net/tx/6fb06bcd042e5f705a458a37cc3aaf6a1ad7a35657cf03f74e3aea383a47fb7e)
-+ [https://xmrchain.net/tx/4509d22833ca47ec224fcd226626bc830056d39a6ff1278c56a4796645c47859](https://xmrchain.net/tx/4509d22833ca47ec224fcd226626bc830056d39a6ff1278c56a4796645c47859)
+Each DBO ring produces one new singleton, corresponding to the output spent in that ring. From a graph analysis perspective, this reveals one edge of the transaction tree belonging to the subgraph representing the true flow of funds. We can record this edge as a `(ring, output)` tuple. Since key images are 1:1 with rings, it also works as well to record `(key image, output)` tuple. Any time that output shows up in a different ring signature, we know that it is a decoy and can remove its possible spend from the set of plausible edges.
 
-Here is another more extreme example, with dozens of DBO ring pairs across just two many-input transactions:
-+ [https://xmrchain.net/tx/71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c0cc8cb](https://xmrchain.net/tx/71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c0cc8cb)
-+ [https://xmrchain.net/tx/48ab24a942778d0c7d79d8bbc7076329ae45b9b7c8cc7c15d105e135b4746587](https://xmrchain.net/tx/48ab24a942778d0c7d79d8bbc7076329ae45b9b7c8cc7c15d105e135b4746587)
+## Example output:
 
-_(as an aside, there are many oddities in the above pair, such as the incorrect decoy selection algorithm for most of the rings (old clusters, and then one new output), and the fact that the 4th ring does appear to be sampled from the correct distribution?)_
+(the below is an excerpt of real results from the Monero blockchain)
 
-## intRAtransaction DBO pairs
-We also find many examples of DBO ring pairs within the same transaction, for example:
-+ Mitchell put a link here! 
-
-## DBO ring analysis
-
-### Method summary
-Any time two rings differ by only one element, we record the edge (`key image <--> output` pair) of the transaction tree corresponding to each singleton. 
-
-### Example output:
 ```
 ...
 
@@ -49,9 +40,27 @@ Spends output: 736eb676e8dcf030ab4116afe4c8c14e37adff19de70fd25e092a5da20dac778
 ...
 ```
 
-### Scope
-By removing transaction labels we can automatically detect intertransaction and intratransaction DBO relationships in a single pass. 
-### Scalability
+## Types of DBO pairs
+
+### intERtransaction DBO pairs
+We can have DBO ring pairs across different transactions, for example:
++ [https://xmrchain.net/tx/6fb06bcd042e5f705a458a37cc3aaf6a1ad7a35657cf03f74e3aea383a47fb7e](https://xmrchain.net/tx/6fb06bcd042e5f705a458a37cc3aaf6a1ad7a35657cf03f74e3aea383a47fb7e)
++ [https://xmrchain.net/tx/4509d22833ca47ec224fcd226626bc830056d39a6ff1278c56a4796645c47859](https://xmrchain.net/tx/4509d22833ca47ec224fcd226626bc830056d39a6ff1278c56a4796645c47859)
+
+Here is another more extreme example, with dozens of DBO ring pairs across just two many-input transactions:
++ [https://xmrchain.net/tx/71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c0cc8cb](https://xmrchain.net/tx/71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c0cc8cb)
++ [https://xmrchain.net/tx/48ab24a942778d0c7d79d8bbc7076329ae45b9b7c8cc7c15d105e135b4746587](https://xmrchain.net/tx/48ab24a942778d0c7d79d8bbc7076329ae45b9b7c8cc7c15d105e135b4746587)
+
+_(as an aside, there are many oddities in the above pair, such as the incorrect decoy selection algorithm for most of the rings (old clusters, and then one new output), and the fact that the 4th ring does appear to be sampled from the correct distribution?)_
+
+### intRAtransaction DBO pairs
+We also find many examples of DBO ring pairs within the same transaction, for example:
++ Mitchell put a link here!
+
+### Scope = everything
+By optionally removing transaction labels we can automatically detect intertransaction and intratransaction DBO relationships in a single pass. 
+
+## Scalability
 
 If `R` is the number of rings on the blockchain, to make each pairwise comparison we would naively expect to do `R^2` checks
 
