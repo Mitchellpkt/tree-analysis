@@ -16,6 +16,12 @@ tx_hash_right: str = "71879ba6099ea18d456cd31694b0860f3649ebeb28ce5630ccb1be312c
 tx_rings_left: Dict[str, Set[str]] = get_processed_transaction(tx_hash_left)
 tx_rings_right: Dict[str, Set[str]] = get_processed_transaction(tx_hash_right)
 
+## Uncomment next block to save out demo rings for tests
+# all_rings= {**tx_rings_left, **tx_rings_right}
+# all_rings_serializeable: Dict[str, Set[str]] = {key_image: list(ring) for key_image, ring in all_rings.items()}
+# import json
+# with open("tests/demo_rings.json", "w") as f:
+#     json.dump(all_rings_serializeable, f)
 
 def wrapper(rings_left, rings_right):
     results = []
